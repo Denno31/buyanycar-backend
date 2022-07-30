@@ -6,7 +6,7 @@ const {
   validateRegisterInputs,
   validateLoginInput,
 } = require("../../utils/validators");
-const { JWT_SECRET } = require("../../config");
+const { JWT_SECRET } = require("../../appconfig");
 
 function generateToken(user) {
   return jwt.sign(
