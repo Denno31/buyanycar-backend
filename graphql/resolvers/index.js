@@ -1,5 +1,6 @@
 const userResolvers = require("./user");
 const vehicleResolvers = require("./vehicleResolver");
+const countyResolvers = require("./countyResolver");
 module.exports = {
   Query: {
     // user query resolvers
@@ -7,6 +8,8 @@ module.exports = {
 
     // vehicle query resolvers
     ...vehicleResolvers.Query,
+    //county
+    ...countyResolvers.Query,
   },
 
   Mutation: {
@@ -15,5 +18,6 @@ module.exports = {
 
     // vehicle mutation resolvers
     ...vehicleResolvers.Mutation,
+    ...countyResolvers.Mutation,
   },
 };

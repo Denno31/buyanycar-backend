@@ -11,7 +11,7 @@ const vehicleSchema = new Schema(
     condition: { type: String, required: true }, //brand new, foreign used, Kenyan Used
     model: { type: String, required: true },
     mileage: { type: Number, required: true },
-    vinChassisNumber: { type: String, required: true },
+    vinChassisNumber: { type: String },
     registered: { type: Boolean, required: true },
     description: { type: String, required: true },
     phoneNumber: { type: String, required: true },

@@ -4,8 +4,15 @@ module.exports = gql`
   type Query {
     sayHi: String!
     # vehicle queries
-    getVehicles: [Vehicle!]!
+    getVehicles(order: String): [Vehicle!]!
     getVehicle(vehicleId: ID!): Vehicle!
+    vehicleMakes: [VehicleMake!]!
+    vehicleModels(vehicleMake: String!): [VehicleModel!]!
+    # county
+    hello: String!
+    getCounties: [County!]!
+    getSubCounties(countyName: String!): [SubCounty!]!
+    getTypes: MyType!
   }
 
   # vehicle types
@@ -26,7 +33,7 @@ module.exports = gql`
     manufactureYear: String!
     condition: String!
     bodyType: String!
-    vinChassisNumber: String!
+    vinChassisNumber: String
     vehicleOwner: User!
     location: String!
     engineSize: Float!
@@ -44,6 +51,25 @@ module.exports = gql`
     updatedAt: String
     phoneNumber: String
     tos: Boolean!
+  }
+  type VehicleMake {
+    _id: ID!
+    make: String!
+  }
+  type VehicleModel {
+    model: String!
+    make: String!
+  }
+  type County {
+    name: String!
+    code: String!
+  }
+  type SubCounty {
+    name: String!
+    subCounty: String!
+  }
+  type MyType {
+    type: String!
   }
 
   input RegisterInput {
@@ -72,7 +98,7 @@ module.exports = gql`
     registered: Boolean!
     condition: String!
     bodyType: String!
-    vinChassisNumber: String!
+    vinChassisNumber: String
     location: String!
     engineSize: Float!
     _id: ID
@@ -87,5 +113,10 @@ module.exports = gql`
     postVehicle(vehicleInput: VehicleInput): Vehicle!
     editVehicle(vehicleInput: VehicleInput): Vehicle!
     deleteVehicle(vehicleId: ID!): Vehicle!
+    insertManyMakes: String!
+    seedModels: String!
+    # counties
+    seedCounties: String!
+    seedSubCounties: String!
   }
 `;
