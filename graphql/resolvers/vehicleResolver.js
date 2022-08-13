@@ -14,7 +14,7 @@ const resolvers = {
   Query: {
     //get vehicles
     async getVehicles(_, { order }) {
-      console.log(order);
+      //console.log(order);
       try {
         let sortOrder =
           order === "recommended"
@@ -41,6 +41,21 @@ const resolvers = {
     async getVehicle(_, { vehicleId }) {
       try {
         const vehicle = await Vehicle.findById(vehicleId).populate(
+          "vehicleOwner"
+        );
+        if (vehicle) {
+          return vehicle;
+        } else {
+          throw new Error("Vehicle not found");
+        }
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
+    //get vehicles by user
+    async getVehiclesByUser(_, { userId }) {
+      try {
+        const vehicle = await Vehicle.find({ vehicleOwner: userId }).populate(
           "vehicleOwner"
         );
         if (vehicle) {

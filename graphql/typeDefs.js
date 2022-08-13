@@ -6,6 +6,7 @@ module.exports = gql`
     # vehicle queries
     getVehicles(order: String): [Vehicle!]!
     getVehicle(vehicleId: ID!): Vehicle!
+    getVehiclesByUser(userId: ID!): [Vehicle!]!
     vehicleMakes: [VehicleMake!]!
     vehicleModels(vehicleMake: String!): [VehicleModel!]!
     # county
