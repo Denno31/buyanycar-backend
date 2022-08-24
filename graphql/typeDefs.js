@@ -4,9 +4,10 @@ module.exports = gql`
   type Query {
     sayHi: String!
     # vehicle queries
-    getVehicles(order: String): [Vehicle!]!
+    getVehicles(order: String, vehicleFilter: VehicleFilter): [Vehicle!]!
     getVehicle(vehicleId: ID!): Vehicle!
     getVehiclesByUser(userId: ID!): [Vehicle!]!
+    getFavoriteVehicles(userId: ID): [Vehicle]!
     vehicleMakes: [VehicleMake!]!
     vehicleModels(vehicleMake: String!): [VehicleModel!]!
     # county
@@ -52,6 +53,7 @@ module.exports = gql`
     updatedAt: String
     phoneNumber: String
     tos: Boolean!
+    favoriteVehicles: [ID]
   }
   type VehicleMake {
     _id: ID!
@@ -105,15 +107,39 @@ module.exports = gql`
     _id: ID
   }
 
+  input VehicleFilter {
+    transmission: [String]
+    price_min: Float
+    price_max: Float
+    make: String
+    model: String
+    color: [String]
+
+    fuel: [String]
+
+    manufactureYearMin: String
+    manufactureYearMax: String
+    registered: String
+    condition: [String]
+    bodyType: [String]
+
+    location: String
+    engineSize: [Float]
+  }
+
   type Mutation {
     # auth mutations
     register(registerInput: RegisterInput): User!
     login(email: String!, password: String!): User!
 
+    # user mutations
+    postFavoriteVehicle(vehicleId: ID!): User!
+
     #vehicle mutations
     postVehicle(vehicleInput: VehicleInput): Vehicle!
     editVehicle(vehicleInput: VehicleInput): Vehicle!
     deleteVehicle(vehicleId: ID!): Vehicle!
+
     insertManyMakes: String!
     seedModels: String!
     # counties

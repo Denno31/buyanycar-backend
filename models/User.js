@@ -10,6 +10,7 @@ const userSchema = new Schema(
     is_active: { type: Boolean, default: true },
     tos: { type: Boolean, required: true },
     phoneNumber: { type: String },
+    favoriteVehicles: [{ type: Schema.Types.ObjectId, ref: "Vehicle" }],
   },
   {
     timestamps: true,

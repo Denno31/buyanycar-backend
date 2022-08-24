@@ -2,6 +2,7 @@ const User = require("../../models/User");
 const bcrypt = require("bcryptjs");
 const { UserInputError } = require("apollo-server");
 const jwt = require("jsonwebtoken");
+const checkAuth = require("../../utils/checkAuth");
 const {
   validateRegisterInputs,
   validateLoginInput,
@@ -106,6 +107,27 @@ const resolvers = {
         id: result._id,
         token,
       };
+    },
+    async postFavoriteVehicle(_, { vehicleId }, context) {
+      const user = checkAuth(context);
+      try {
+        const result = await User.findOne({ _id: user.id });
+
+        const favoriteVehicleExists = result.favoriteVehicles.find(
+          (v_id) => vehicleId.toString() === v_id.toString()
+        );
+        if (favoriteVehicleExists) {
+          result.favoriteVehicles = result.favoriteVehicles.filter(
+            (v_id) => v_id.toString() !== vehicleId.toString()
+          );
+        } else {
+          result.favoriteVehicles.push(vehicleId);
+        }
+        const savedUpdate = await result.save();
+        return savedUpdate;
+      } catch (error) {
+        throw new Error(error);
+      }
     },
   },
 };

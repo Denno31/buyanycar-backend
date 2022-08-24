@@ -16,7 +16,7 @@ const vehicleSchema = new Schema(
     description: { type: String, required: true },
     phoneNumber: { type: String, required: true },
     negotiable: { type: Boolean, default: false },
-    manufactureYear: { type: String, required: true },
+    manufactureYear: { type: Number, required: true },
     bodyType: { type: String, required: true },
     fuel: { type: String, required: true },
     engineSize: { type: Number, required: true },

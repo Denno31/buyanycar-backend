@@ -1,4 +1,5 @@
 const { UserInputError } = require("apollo-server");
+const User = require("../../models/User");
 const Vehicle = require("../../models/Vehicle");
 const VehicleMake = require("../../models/VehicleMake");
 const VehicleModel = require("../../models/VehicleModels");
@@ -13,8 +14,112 @@ const axios = require("axios");
 const resolvers = {
   Query: {
     //get vehicles
-    async getVehicles(_, { order }) {
-      //console.log(order);
+    async getVehicles(_, { order, vehicleFilter }) {
+      const make = vehicleFilter.make;
+      const model = vehicleFilter.model;
+      console.log("model: ", model);
+      const makeFilter = make && make !== "all" ? { make } : {};
+      const modelFilter = model && model !== "all" ? { model } : {};
+      const registeredFilter =
+        vehicleFilter.registered === "YES"
+          ? { registered: true }
+          : vehicleFilter.registered === "NO"
+          ? { registered: false }
+          : {};
+      const manufactureYearMin =
+        vehicleFilter.manufactureYearMin &&
+        Number(vehicleFilter.manufactureYearMin) !== 0
+          ? Number(vehicleFilter.manufactureYearMin)
+          : 0;
+      const manufactureYearMax =
+        vehicleFilter.manufactureYearMax &&
+        Number(vehicleFilter.manufactureYearMax) !== 0
+          ? Number(vehicleFilter.manufactureYearMax)
+          : 0;
+      const manufactureYearFilter =
+        manufactureYearMin && manufactureYearMax
+          ? {
+              manufactureYear: {
+                $gte: manufactureYearMin,
+                $lte: manufactureYearMax,
+              },
+            }
+          : {};
+      console.log(vehicleFilter);
+      const conditionFilter =
+        vehicleFilter.condition && vehicleFilter.condition.length > 0
+          ? vehicleFilter.condition.map((c) => {
+              return {
+                condition: c,
+              };
+            })
+          : [{}];
+      const bodyTypeFilter =
+        vehicleFilter.bodyType && vehicleFilter.bodyType.length > 0
+          ? vehicleFilter.bodyType.map((c) => {
+              return {
+                bodyType: c,
+              };
+            })
+          : [{}];
+      const engineSizeFilter =
+        vehicleFilter.engineSize && vehicleFilter.engineSize.length > 0
+          ? vehicleFilter.engineSize.map((c) => {
+              return {
+                engineSize: Number(c),
+              };
+            })
+          : [{}];
+      const colorFilter =
+        vehicleFilter.color && vehicleFilter.color.length > 0
+          ? vehicleFilter.color.map((c) => {
+              return {
+                color: c,
+              };
+            })
+          : [{}];
+      const fuelFilter =
+        vehicleFilter.fuel && vehicleFilter.fuel.length > 0
+          ? vehicleFilter.fuel.map((c) => {
+              return {
+                fuel: c,
+              };
+            })
+          : [{}];
+      const transmissionFilter =
+        vehicleFilter.transmission && vehicleFilter.transmission.length > 0
+          ? vehicleFilter.transmission.map((c) => {
+              return {
+                transmission: c,
+              };
+            })
+          : [{}];
+
+      const price_min =
+        vehicleFilter.price_min && Number(vehicleFilter.price_min) !== 0
+          ? Number(vehicleFilter.price_min)
+          : 0;
+      const price_max =
+        vehicleFilter.price_max && Number(vehicleFilter.price_max) !== 0
+          ? Number(vehicleFilter.price_max)
+          : 0;
+      const priceFilter =
+        price_min >= 0 && price_max > 0
+          ? {
+              price: {
+                $gte: price_min,
+                $lte: price_max,
+              },
+            }
+          : price_min > 0 && price_max === 0
+          ? {
+              price: {
+                $gte: price_min,
+              },
+            }
+          : {};
+
+      console.log(modelFilter);
       try {
         let sortOrder =
           order === "recommended"
@@ -28,7 +133,19 @@ const resolvers = {
             : order === "lowest"
             ? { price: 1 }
             : { createdAt: -1 };
-        const vehicles = await Vehicle.find()
+        const vehicles = await Vehicle.find({
+          ...makeFilter,
+          ...modelFilter,
+          ...manufactureYearFilter,
+          ...priceFilter,
+          ...registeredFilter,
+          $or: [...conditionFilter],
+          $or: [...bodyTypeFilter],
+          $or: [...engineSizeFilter],
+          $or: [...colorFilter],
+          $or: [...fuelFilter],
+          $or: [...transmissionFilter],
+        })
           .sort(sortOrder)
           .populate("vehicleOwner");
         return vehicles;
@@ -90,7 +207,18 @@ const resolvers = {
         throw new Error(err);
       }
     },
-
+    async getFavoriteVehicles(_, { userId }, context) {
+      const userContext = checkAuth(context);
+      console.log(userId);
+      try {
+        const user = await User.findOne({ _id: userContext.id }).populate(
+          "favoriteVehicles"
+        );
+        return user.favoriteVehicles;
+      } catch (err) {
+        throw new Error(err);
+      }
+    },
     getTypes() {
       return { type: "bright" };
     },
@@ -104,16 +232,17 @@ const resolvers = {
         // const validationResult = await vehicleSchema.validateAsync(
         //   vehicleInput
         // );
-        console.log(vehicleInput);
+        // console.log(vehicleInput);
         const { errors, valid } = validateVehicleInput(vehicleInput);
-        console.log(errors);
-        console.log(valid);
+        // console.log(errors);
+        //console.log(valid);
         if (!valid) {
           return new UserInputError("Errors", { errors });
         }
         // console.log(validationResult);
         const newVehicle = new Vehicle({
           ...vehicleInput,
+          manufactureYear: Number(vehicleInput.manufactureYear),
           vehicleOwner: user.id,
         });
 
@@ -128,7 +257,13 @@ const resolvers = {
     async editVehicle(_, { vehicleInput }, context) {
       const user = checkAuth(context);
       // TODO: check if user is the owner or admin
+
       try {
+        const { errors, valid } = validateVehicleInput(vehicleInput);
+
+        if (!valid) {
+          return new UserInputError("Errors", { errors });
+        }
         const vehicle = await Vehicle.findById(vehicleInput._id);
         if (!vehicle) {
           throw new Error("Vehicle not found");
@@ -148,8 +283,9 @@ const resolvers = {
         vehicle.description = vehicleInput.description || vehicle.description;
         vehicle.phoneNumber = vehicleInput.phoneNumber || vehicle.phoneNumber;
         vehicle.negotiable = vehicleInput.negotiable;
-        vehicle.manufactureYear =
-          vehicleInput.manufactureYear || vehicle.manufactureYear;
+        vehicle.manufactureYear = vehicleInput.manufactureYear
+          ? Number(vehicleInput.manufactureYear)
+          : Number(vehicle.manufactureYear);
         vehicle.bodyType = vehicleInput.bodyType || vehicle.bodyType;
         vehicle.fuel = vehicleInput.fuel || vehicle.fuel;
         vehicle.engineSize = vehicleInput.engineSize || vehicle.engineSize;
@@ -164,7 +300,7 @@ const resolvers = {
         throw new Error(err);
       }
     },
-
+    //add favorite vehicle
     // delete vehicle
     async deleteVehicle(_, { vehicleId }, context) {
       const user = checkAuth(context);
