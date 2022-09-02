@@ -17,7 +17,7 @@ const resolvers = {
     async getVehicles(_, { order, vehicleFilter }) {
       const make = vehicleFilter.make;
       const model = vehicleFilter.model;
-      console.log("model: ", model);
+      //console.log("model: ", model);
       const makeFilter = make && make !== "all" ? { make } : {};
       const modelFilter = model && model !== "all" ? { model } : {};
       const registeredFilter =
@@ -45,7 +45,7 @@ const resolvers = {
               },
             }
           : {};
-      console.log(vehicleFilter);
+     //console.log(vehicleFilter);
       const conditionFilter =
         vehicleFilter.condition && vehicleFilter.condition.length > 0
           ? vehicleFilter.condition.map((c) => {
@@ -119,7 +119,7 @@ const resolvers = {
             }
           : {};
 
-      console.log(modelFilter);
+      //console.log(modelFilter);
       try {
         let sortOrder =
           order === "recommended"
