@@ -219,6 +219,14 @@ const resolvers = {
         throw new Error(err);
       }
     },
+    async getSimilarVehicles(_, { vehicleMake }) {
+      try {
+        const vehicles = await Vehicle.find({ vehicleMake });
+        return vehicles;
+      } catch (error) {
+        throw new Error(error);
+      }
+    },
     getTypes() {
       return { type: "bright" };
     },

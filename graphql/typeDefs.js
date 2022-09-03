@@ -10,6 +10,7 @@ module.exports = gql`
     getFavoriteVehicles(userId: ID): [Vehicle]!
     vehicleMakes: [VehicleMake!]!
     vehicleModels(vehicleMake: String!): [VehicleModel!]!
+    getSimilarVehicles(vehicleMake: String!): [Vehicle!]!
     # county
     hello: String!
     getCounties: [County!]!
