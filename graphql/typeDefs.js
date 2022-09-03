@@ -14,6 +14,8 @@ module.exports = gql`
     # county
     hello: String!
     getCounties: [County!]!
+    # messages
+    getMessages(fromUser:ID!):[Message!]!
     getSubCounties(countyName: String!): [SubCounty!]!
     getTypes: MyType!
   }
@@ -127,7 +129,13 @@ module.exports = gql`
     location: String
     engineSize: [Float]
   }
-
+  type Message {
+    content:String!
+    fromUser:ID
+    toUser:ID!
+    createdAt:String
+    
+  }
   type Mutation {
     # auth mutations
     register(registerInput: RegisterInput): User!
@@ -146,5 +154,8 @@ module.exports = gql`
     # counties
     seedCounties: String!
     seedSubCounties: String!
+    #mesage mutations
+    postMessage(content:String!, to:ID!):Message!
+
   }
 `;
