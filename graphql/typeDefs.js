@@ -15,8 +15,9 @@ module.exports = gql`
     hello: String!
     getCounties: [County!]!
     # messages
-    getMessages(fromUser:ID!):[Message!]!
+    getMessages(fromUser: ID!): [Message!]!
     getSubCounties(countyName: String!): [SubCounty!]!
+    getChatUsers: [User!]!
     getTypes: MyType!
   }
 
@@ -57,6 +58,11 @@ module.exports = gql`
     phoneNumber: String
     tos: Boolean!
     favoriteVehicles: [ID]
+    latestMessage: String
+  }
+  type ChatUser {
+    latestMessage: String
+    firstName: String
   }
   type VehicleMake {
     _id: ID!
@@ -130,11 +136,10 @@ module.exports = gql`
     engineSize: [Float]
   }
   type Message {
-    content:String!
-    fromUser:ID
-    toUser:ID!
-    createdAt:String
-    
+    content: String!
+    fromUser: ID
+    toUser: ID!
+    createdAt: String
   }
   type Mutation {
     # auth mutations
@@ -155,7 +160,6 @@ module.exports = gql`
     seedCounties: String!
     seedSubCounties: String!
     #mesage mutations
-    postMessage(content:String!, to:ID!):Message!
-
+    postMessage(content: String!, to: ID!): Message!
   }
 `;
