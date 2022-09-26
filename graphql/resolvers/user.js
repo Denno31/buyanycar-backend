@@ -46,6 +46,7 @@ const resolvers = {
       }
 
       const token = generateToken(user);
+      console.log(token);
       return {
         ...user._doc,
         id: user._id,
