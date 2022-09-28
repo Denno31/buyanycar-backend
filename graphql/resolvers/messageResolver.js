@@ -59,28 +59,22 @@ const resolvers = {
       try {
         const user = checkAuth(context);
         console.log(user.id);
-        const chatws = await Message.aggregate([
-          {
-            $match: {
-              $or: [
-                {
-                  fromUser: mongoose.Types.ObjectId("62b9abfa6ff45519cd8db9ff"),
-                },
-                {
-                  toUser: mongoose.Types.ObjectId("62b9abfa6ff45519cd8db9ff"),
-                },
-              ],
-            },
-          },
-          // additional aggregate steps like sorting by createdAt and limiting output
-          { $sort: { createdDate: -1 } },
-        ]);
-        const chats = await Message.find({
-          fromUser: "62b9abfa6ff45519cd8db9ff",
-        });
-        console.log("the chats", chatws);
+        let chats = []
+        let userList = await User.find({_id:{$ne:user.id}}).select('firstName lastName _id')
+        const messages = await Message.find().sort({createdAt:-1})
+          
+        for(let i=0; i < userList.length; i++){
+          const latestMsg = messages.find(msg=>{
+            return (msg.users.includes(userList[i]._id.toString()) && msg.users.includes(user.id.toString()))
+          })
+          userList[i].latestMessage = latestMsg?.content
+          if(latestMsg)
+          chats.push(userList[i])
+        }
+        // console.log("the chats", chats);
         return chats;
       } catch (err) {
+        console.log(err)
         throw new Error(err);
       }
     },
