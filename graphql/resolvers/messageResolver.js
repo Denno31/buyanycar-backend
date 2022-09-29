@@ -62,16 +62,17 @@ const resolvers = {
         let chats = []
         let userList = await User.find({_id:{$ne:user.id}}).select('firstName lastName _id')
         const messages = await Message.find().sort({createdAt:-1})
-          
+
         for(let i=0; i < userList.length; i++){
           const latestMsg = messages.find(msg=>{
             return (msg.users.includes(userList[i]._id.toString()) && msg.users.includes(user.id.toString()))
           })
           userList[i].latestMessage = latestMsg?.content
+          userList[i].id = userList[i]._id
           if(latestMsg)
           chats.push(userList[i])
         }
-        // console.log("the chats", chats);
+         console.log("the chats", chats);
         return chats;
       } catch (err) {
         console.log(err)

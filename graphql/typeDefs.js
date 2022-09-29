@@ -15,7 +15,7 @@ module.exports = gql`
     hello: String!
     getCounties: [County!]!
     # messages
-    getMessages(fromUser: ID!): [Message!]!
+    getMessages(fromUser: ID): [Message!]!
     getSubCounties(countyName: String!): [SubCounty!]!
     getChatUsers: [User!]!
     getTypes: MyType!
@@ -136,6 +136,7 @@ module.exports = gql`
     engineSize: [Float]
   }
   type Message {
+    _id:ID!
     content: String!
     fromUser: ID
     toUser: ID!
