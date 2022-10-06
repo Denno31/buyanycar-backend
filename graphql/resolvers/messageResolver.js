@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const checkAuth = require("../../utils/checkAuth");
 const Message = require("../../models/Message");
 const User = require("../../models/User");
+
 const resolvers = {
   Query: {
     async getMessages(_, { fromUser }, context) {
@@ -16,45 +17,13 @@ const resolvers = {
         //console.log(userIds)
         const messages = await Message.find({
           users: { $all: userIds },
-        }).sort({ createdAt: -1 });
+        }).sort({ createdAt: 1 });
         return messages;
       } catch (err) {
         throw new Error(err);
       }
     },
-    //   async getChatUsers(_, __, context) {
-    //     try {
-    //       const user = checkAuth(context);
-    //       // console.log(user.id);
-    //       let users = await User.find();
-    //       // let users = [user];
-    //       const allUserMessages = await Message.find({
-    //         $or: [{ fromUser: user.id }, { toUser: user.id }],
-    //       }).sort({ createdAt: -1 });
-    //       // console.log(allUserMessages);
-    //       users = users.map((otherUser) => {
-    //         const latestMessage = allUserMessages.find((m) => {
-    //           // console.log(typeof m.fromUser);
-    //           // console.log(m.fromUser === mongoose.Types.ObjectId(otherUser.id));
-    //           console.log(otherUser._id);
-    //           return (
-    //             m.fromUser.toString() === otherUser._id.toString() ||
-    //             m.toUser.toString() === otherUser._id.toString()
-    //           );
-    //         });
-    //         otherUser.latestMessage = latestMessage?.content;
-    //         return otherUser;
-    //       });
-    //       users = users.filter((m) => {
-    //         return typeof m.latestMessage !== "null";
-    //       });
-    //       return users;
-    //     } catch (err) {
-    //       console.log(err);
-    //       throw new Error(err);
-    //     }
-    //   },
-    // },
+  
     async getChatUsers(_, __, context) {
       try {
         const user = checkAuth(context);
@@ -83,7 +52,7 @@ const resolvers = {
   Mutation: {
     async postMessage(_, { to, content }, context) {
       //console.log("in post message");
-
+     
       try {
         const user = checkAuth(context);
         // console.log(user);
@@ -104,13 +73,21 @@ const resolvers = {
           users: [user.id, to],
         });
         const createdMessage = await message.save();
+        context.pubsub.publish('NEW_MESSAGE',{newMessage:createdMessage})
         return createdMessage;
       } catch (err) {
         // console.log('erro handler')
-        console.log(err);
+        
         throw new Error(err);
       }
     },
   },
+  Subscription: {
+    newMessage:{
+      subscribe:(_,__,{pubsub})=> {
+        console.log("in sub")
+        return pubsub.asyncIterator('NEW_MESSAGE')}
+    }
+  }
 };
 module.exports = resolvers;

@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const messageSchema = new mongoose.Schema(
   {
     content: { type: String, required: true },
+    messageOwner:{type: mongoose.Schema.Types.ObjectId, ref: "User"},
     fromUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     toUser: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
     users: Array,

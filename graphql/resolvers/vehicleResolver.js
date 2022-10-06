@@ -10,6 +10,7 @@ const {
 } = require("../../utils/validators");
 //const fetch = require("node-fetch");
 const axios = require("axios");
+const { checkOwner } = require("../../utils/middleware");
 
 const resolvers = {
   Query: {
@@ -276,6 +277,8 @@ const resolvers = {
         if (!vehicle) {
           throw new Error("Vehicle not found");
         }
+        //check if the user is the vehicle owner
+        if(!checkOwner(user.id,vehicleOwner)) throw new Error("you are not authorized to edit this vehicle")
         vehicle.price = vehicleInput.price || vehicle.price;
         vehicle.transmission =
           vehicleInput.transmission || vehicle.transmission;

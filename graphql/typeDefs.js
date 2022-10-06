@@ -141,6 +141,7 @@ module.exports = gql`
     fromUser: ID
     toUser: ID!
     createdAt: String
+    users: [String!]!
   }
   type Mutation {
     # auth mutations
@@ -162,5 +163,8 @@ module.exports = gql`
     seedSubCounties: String!
     #mesage mutations
     postMessage(content: String!, to: ID!): Message!
+  }
+  type Subscription {
+    newMessage:Message!
   }
 `;
