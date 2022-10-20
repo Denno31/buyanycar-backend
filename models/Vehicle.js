@@ -6,6 +6,7 @@ const vehicleSchema = new Schema(
     transmission: { type: String, required: true },
     vehicleImageUrl: [{ type: String, required: true }],
     location: { type: String, required: true },
+    area:{type:String, required:true,default:""},
     make: { type: String, required: true },
     color: { type: String, required: true },
     condition: { type: String, required: true }, //brand new, foreign used, Kenyan Used

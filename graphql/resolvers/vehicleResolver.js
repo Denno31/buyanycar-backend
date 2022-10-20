@@ -16,26 +16,31 @@ const resolvers = {
   Query: {
     //get vehicles
     async getVehicles(_, { order, vehicleFilter }) {
-      const make = vehicleFilter.make;
-      const model = vehicleFilter.model;
+      //console.log(vehicleFilter)
+      const make = vehicleFilter?.make;
+      const model = vehicleFilter?.model;
+      const location = vehicleFilter?.location
+     
+      const locationFilter = location && location !== "äll" ? {location}:{}
+      // console.log(locationFilter)
       //console.log("model: ", model);
       const makeFilter = make && make !== "all" ? { make } : {};
       const modelFilter = model && model !== "all" ? { model } : {};
       const registeredFilter =
-        vehicleFilter.registered === "YES"
+        vehicleFilter?.registered === "YES"
           ? { registered: true }
-          : vehicleFilter.registered === "NO"
+          : vehicleFilter?.registered === "NO"
           ? { registered: false }
           : {};
       const manufactureYearMin =
-        vehicleFilter.manufactureYearMin &&
-        Number(vehicleFilter.manufactureYearMin) !== 0
-          ? Number(vehicleFilter.manufactureYearMin)
+        vehicleFilter?.manufactureYearMin &&
+        Number(vehicleFilter?.manufactureYearMin) !== 0
+          ? Number(vehicleFilter?.manufactureYearMin)
           : 0;
       const manufactureYearMax =
-        vehicleFilter.manufactureYearMax &&
-        Number(vehicleFilter.manufactureYearMax) !== 0
-          ? Number(vehicleFilter.manufactureYearMax)
+        vehicleFilter?.manufactureYearMax &&
+        Number(vehicleFilter?.manufactureYearMax) !== 0
+          ? Number(vehicleFilter?.manufactureYearMax)
           : 0;
       const manufactureYearFilter =
         manufactureYearMin && manufactureYearMax
@@ -48,48 +53,48 @@ const resolvers = {
           : {};
      //console.log(vehicleFilter);
       const conditionFilter =
-        vehicleFilter.condition && vehicleFilter.condition.length > 0
-          ? vehicleFilter.condition.map((c) => {
+        vehicleFilter?.condition && vehicleFilter?.condition.length > 0
+          ? vehicleFilter?.condition.map((c) => {
               return {
                 condition: c,
               };
             })
           : [{}];
       const bodyTypeFilter =
-        vehicleFilter.bodyType && vehicleFilter.bodyType.length > 0
-          ? vehicleFilter.bodyType.map((c) => {
+        vehicleFilter?.bodyType && vehicleFilter?.bodyType.length > 0
+          ? vehicleFilter?.bodyType.map((c) => {
               return {
                 bodyType: c,
               };
             })
           : [{}];
       const engineSizeFilter =
-        vehicleFilter.engineSize && vehicleFilter.engineSize.length > 0
-          ? vehicleFilter.engineSize.map((c) => {
+        vehicleFilter?.engineSize && vehicleFilter?.engineSize.length > 0
+          ? vehicleFilter?.engineSize.map((c) => {
               return {
                 engineSize: Number(c),
               };
             })
           : [{}];
       const colorFilter =
-        vehicleFilter.color && vehicleFilter.color.length > 0
-          ? vehicleFilter.color.map((c) => {
+        vehicleFilter?.color && vehicleFilter?.color.length > 0
+          ? vehicleFilter?.color.map((c) => {
               return {
                 color: c,
               };
             })
           : [{}];
       const fuelFilter =
-        vehicleFilter.fuel && vehicleFilter.fuel.length > 0
-          ? vehicleFilter.fuel.map((c) => {
+        vehicleFilter?.fuel && vehicleFilter?.fuel.length > 0
+          ? vehicleFilter?.fuel.map((c) => {
               return {
                 fuel: c,
               };
             })
           : [{}];
       const transmissionFilter =
-        vehicleFilter.transmission && vehicleFilter.transmission.length > 0
-          ? vehicleFilter.transmission.map((c) => {
+        vehicleFilter?.transmission && vehicleFilter?.transmission.length > 0
+          ? vehicleFilter?.transmission.map((c) => {
               return {
                 transmission: c,
               };
@@ -97,12 +102,12 @@ const resolvers = {
           : [{}];
 
       const price_min =
-        vehicleFilter.price_min && Number(vehicleFilter.price_min) !== 0
-          ? Number(vehicleFilter.price_min)
+        vehicleFilter?.price_min && Number(vehicleFilter?.price_min) !== 0
+          ? Number(vehicleFilter?.price_min)
           : 0;
       const price_max =
-        vehicleFilter.price_max && Number(vehicleFilter.price_max) !== 0
-          ? Number(vehicleFilter.price_max)
+        vehicleFilter?.price_max && Number(vehicleFilter?.price_max) !== 0
+          ? Number(vehicleFilter?.price_max)
           : 0;
       const priceFilter =
         price_min >= 0 && price_max > 0
@@ -120,7 +125,7 @@ const resolvers = {
             }
           : {};
 
-      //console.log(modelFilter);
+     
       try {
         let sortOrder =
           order === "recommended"
@@ -140,6 +145,7 @@ const resolvers = {
           ...manufactureYearFilter,
           ...priceFilter,
           ...registeredFilter,
+          ...locationFilter,
           $or: [...conditionFilter],
           $or: [...bodyTypeFilter],
           $or: [...engineSizeFilter],
@@ -149,8 +155,10 @@ const resolvers = {
         })
           .sort(sortOrder)
           .populate("vehicleOwner");
+          
         return vehicles;
       } catch (err) {
+      
         throw new Error(err);
       }
     },

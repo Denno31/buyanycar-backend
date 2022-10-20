@@ -1,4 +1,4 @@
-const gql = require(`graphql-tag`);
+const {gql} = require(`apollo-server`);
 
 module.exports = gql`
   type Query {
@@ -44,6 +44,7 @@ module.exports = gql`
     location: String!
     engineSize: Float!
     registered: Boolean!
+    area:String!
   }
 
   #user types
@@ -112,6 +113,7 @@ module.exports = gql`
     bodyType: String!
     vinChassisNumber: String
     location: String!
+    area:String!
     engineSize: Float!
     _id: ID
   }
@@ -123,17 +125,15 @@ module.exports = gql`
     make: String
     model: String
     color: [String]
-
     fuel: [String]
-
     manufactureYearMin: String
     manufactureYearMax: String
     registered: String
     condition: [String]
     bodyType: [String]
-
     location: String
     engineSize: [Float]
+    area:String
   }
   type Message {
     _id:ID!
@@ -167,4 +167,5 @@ module.exports = gql`
   type Subscription {
     newMessage:Message!
   }
+ 
 `;
