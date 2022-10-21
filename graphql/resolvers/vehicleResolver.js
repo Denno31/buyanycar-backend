@@ -274,7 +274,7 @@ const resolvers = {
     async editVehicle(_, { vehicleInput }, context) {
       const user = checkAuth(context);
       // TODO: check if user is the owner or admin
-
+      
       try {
         const { errors, valid } = validateVehicleInput(vehicleInput);
 
@@ -286,7 +286,7 @@ const resolvers = {
           throw new Error("Vehicle not found");
         }
         //check if the user is the vehicle owner
-        if(!checkOwner(user.id,vehicleOwner)) throw new Error("you are not authorized to edit this vehicle")
+        if(!checkOwner(user.id,vehicle.vehicleOwner)) throw new Error("you are not authorized to edit this vehicle")
         vehicle.price = vehicleInput.price || vehicle.price;
         vehicle.transmission =
           vehicleInput.transmission || vehicle.transmission;
@@ -310,6 +310,7 @@ const resolvers = {
         vehicle.engineSize = vehicleInput.engineSize || vehicle.engineSize;
         vehicle.vehicleImageUrl =
           vehicleInput.vehicleImageUrl || vehicle.vehicleImageUrl;
+          vehicle.area = vehicleInput.area || vehicle.area;
 
         let updatedVehicle = await vehicle.save();
 
